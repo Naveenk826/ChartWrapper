@@ -4,39 +4,81 @@ import { ChartTypes } from "../constants/enum";
 
 interface ChartData {
   x: string[];
-  y: number[];
+  y?: number[];
+  size?: number[];
+  [key: string]: any;
+}
+
+interface CombinationSeries {
+  type: ChartTypes;
+  yKey: string;
+  name: string;
 }
 
 interface DataChartProps {
-  chartType: ChartTypes;
+  chartType: ChartTypes | "combination";
   data: ChartData;
+  combinationSeries?: CombinationSeries[];
 }
 
-const DataChart: React.FC<DataChartProps> = ({ chartType, data }) => {
+const DataChart: React.FC<DataChartProps> = ({ chartType, data, combinationSeries }) => {
   const [chartOptions, setChartOptions] = useState({});
 
   useEffect(() => {
     initializeChart();
-  }, [chartType, data]);
+  }, [chartType, data, combinationSeries]);
 
   const initializeChart = () => {
-    const formattedData = data.x.map((xValue, index) => ({
-      xKey: xValue,
-      yKey: data.y[index],
-    }));
+    const formattedData = data.x.map((xValue, index) => {
+      const formattedPoint: any = { xKey: xValue };
+      if (data.y) formattedPoint.yKey = data.y[index];
+      if (data.size) formattedPoint.size = data.size[index];
+      Object.keys(data).forEach((key) => {
+        if (key !== "x" && key !== "y" && key !== "size") {
+          formattedPoint[key] = data[key][index];
+        }
+      });
+      return formattedPoint;
+    });
 
     const options = {
       title: { text: `AG Charts - ${chartType} Chart`, fontSize: 18 },
       data: formattedData,
       series:
-        chartType === ChartTypes.Pie
-          ? [{ type: "pie", angleKey: "yKey", labelKey: "xKey" }]
+        chartType === "combination" && combinationSeries
+          ? combinationSeries.map((series) => ({
+              type: series.type,
+              xKey: "xKey",
+              yKey: series.yKey,
+              name: series.name,
+            }))
+          : chartType === ChartTypes.Pie || chartType === ChartTypes.Donut
+          ? [
+              {
+                type: chartType === ChartTypes.Donut ? 'donut' : "pie",
+                angleKey: "yKey",
+                labelKey: "xKey",
+                innerRadiusRatio: chartType === ChartTypes.Donut ? 0.7 : 0,
+              },
+            ]
+          : chartType === ChartTypes.Bubble
+          ? [
+              {
+                type: "bubble",
+                xKey: "xKey",
+                yKey: "yKey",
+                sizeKey: "size",
+              },
+            ]
           : [{ type: chartType, xKey: "xKey", yKey: "yKey" }],
       legend: { enabled: true },
-      axes: chartType === ChartTypes.Pie ? [] : [
-        { type: "category", position: "bottom" },
-        { type: "number", position: "left" },
-      ],
+      axes:
+        chartType === ChartTypes.Pie || chartType === ChartTypes.Donut
+          ? []
+          : [
+              { type: "category", position: "bottom" },
+              { type: "number", position: "left" },
+            ],
     };
 
     setChartOptions(options);
