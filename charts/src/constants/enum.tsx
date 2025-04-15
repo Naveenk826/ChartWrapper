@@ -1,4 +1,6 @@
+// Enum to define the supported chart types
 export enum ChartTypes {
+
   Bar = "bar",
   Line = "line",
   Area = "area",

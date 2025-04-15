@@ -1,14 +1,15 @@
 import React, { useEffect, useRef } from "react";
 import { initializeChart, ChartType } from "../utils/initializeChart";
 
+
+// Define the props for the DataChart component
 type DataChartProps = {
-  chartType: ChartType;
-  data: any;
-  // title: string;
+  chartType: ChartType; // The type of chart to render (e.g., line, bar, pie)
+  data: any; // The data to be displayed in the chart
   combinationSeries?: {
-    type: ChartType;
-    yKey: string;
-    name: string;
+    type: ChartType; // The type of chart for this series (e.g., line, bar)
+    yKey: string; // The key for the Y-axis data
+    name: string; // The name of the series (used in legends)
   }[];
 };
 
@@ -20,18 +21,23 @@ const DataChart: React.FC<DataChartProps> = ({
   const chartDivRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+
     if (chartDivRef.current) {
       initializeChart(chartType, data, chartDivRef.current, combinationSeries);
     }
 
+
+    // Cleanup function to clear the chart container when the component unmounts
     return () => {
       if (chartDivRef.current) {
-        chartDivRef.current.innerHTML = "";
+        chartDivRef.current.innerHTML = ""; // Clear the chart container
       }
     };
-  }, [chartType, data, combinationSeries]);
+  }, [chartType, data, combinationSeries]); // Dependencies: re-run effect when these change
 
-  return <div ref={chartDivRef} style={{ width: "100%", height: 400 }} />;
+  // Render the chart container
+  return <div ref={chartDivRef} style={{ width: "100%", height: "100%" }} />;
+
 };
 
 export default DataChart;
