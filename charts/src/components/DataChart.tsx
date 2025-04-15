@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { initializeChart, ChartType } from "../utils/initializeChart";
 
+
 // Define the props for the DataChart component
 type DataChartProps = {
   chartType: ChartType; // The type of chart to render (e.g., line, bar, pie)
@@ -17,14 +18,14 @@ const DataChart: React.FC<DataChartProps> = ({
   data,
   combinationSeries,
 }) => {
-  // Ref for the chart container div
   const chartDivRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Initialize the chart when the component mounts or when dependencies change
+
     if (chartDivRef.current) {
       initializeChart(chartType, data, chartDivRef.current, combinationSeries);
     }
+
 
     // Cleanup function to clear the chart container when the component unmounts
     return () => {
@@ -36,6 +37,7 @@ const DataChart: React.FC<DataChartProps> = ({
 
   // Render the chart container
   return <div ref={chartDivRef} style={{ width: "100%", height: "100%" }} />;
+
 };
 
 export default DataChart;

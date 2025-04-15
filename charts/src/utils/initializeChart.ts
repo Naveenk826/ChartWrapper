@@ -157,3 +157,4 @@ export const initializeChart = (
   // Create the chart using the configured options
   AgCharts.create(options);
 };
+
